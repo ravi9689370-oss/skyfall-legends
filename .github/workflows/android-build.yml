@@ -50,6 +50,8 @@ jobs:
         run: |
           curl -fsSL -o godot.zip "${GODOT_URL}"
           unzip -q godot.zip -d "$RUNNER_TEMP"
+          GODOT_EXE=$(find "$RUNNER_TEMP" -maxdepth 1 -type f -name "Godot*" | head -n 1)
+          mv "$GODOT_EXE" "${GODOT_BIN}"
           chmod +x "${GODOT_BIN}"
           rm -f godot.zip
           "${GODOT_BIN}" --version | head -1
