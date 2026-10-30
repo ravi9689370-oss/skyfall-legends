@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- Skyfall Legends icon: faller descending through the drop ring -->
+  <rect x="0" y="0" width="128" height="128" rx="26" ry="26" fill="#0b1320"/>
+  <circle cx="64" cy="52" r="40" fill="none" stroke="#e5b53a" stroke-width="7" stroke-dasharray="16 10"/>
+  <path d="M 22 52 A 42 42 0 0 1 106 52" fill="none" stroke="#4fa3e3" stroke-width="9" stroke-linecap="round"/>
+  <line x1="52" y1="58" x2="46" y2="88" stroke="#4fa3e3" stroke-width="4" stroke-linecap="round"/>
+  <line x1="76" y1="58" x2="82" y2="88" stroke="#4fa3e3" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="64" cy="74" r="9" fill="#e5b53a"/>
+  <path d="M 64 84 L 60 100 L 64 96 L 68 100 Z" fill="#e5b53a"/>
+</svg>

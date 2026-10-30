@@ -1,0 +1,25 @@
+# Godot import cache / editor state
+.godot/
+**/*.import
+
+# Build outputs
+build/
+
+# Android export intermediates (generated from templates; never commit)
+android/
+.gradle/
+*.keystore
+*.jks
+
+# Python
+__pycache__/
+*.pyc
+
+# Logs / local scratch
+*.log
+*.tmp
+.test-artifacts/
+
+# OS noise
+.DS_Store
+Thumbs.db

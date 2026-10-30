@@ -1,0 +1,67 @@
+name: Automated Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      GODOT_VERSION: 4.7.2-stable
+      GODOT_URL: "https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip"
+      GODOT_BIN: ${{ runner.temp }}/godot
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Godot 4.7.2 headless binary
+        run: |
+          curl -fsSL -o godot.zip "${GODOT_URL}"
+          unzip -q godot.zip -d "${{ runner.temp }}"
+          chmod +x "${GODOT_BIN}"
+          rm -f godot.zip
+          "${GODOT_BIN}" --version | head -1
+
+      - name: Generate script class cache
+        # Local editor `--import` crashes in this project's proot host
+        # (heap corruption, tracked in docs/ENVIRONMENT_AUDIT.md); CI does not
+        # need the editor, so the cache is generated directly.
+        run: python3 tools/build/gen_class_cache.py .
+
+      - name: Run unit + integration test suite
+        id: tests
+        continue-on-error: true
+        run: |
+          "${GODOT_BIN}" --headless --path "${{ github.workspace }}" \
+            -s res://game/tests/run_tests.gd > testrun.log 2>&1
+          echo "exit_code=$?" >> testrun.log
+          echo "exit_code=$?" >> "${GITHUB_OUTPUT}"
+
+      - name: Publish test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: testrun-log
+          path: testrun.log
+          retention-days: 7
+
+      - name: Fail on test failure
+        if: always()
+        run: |
+          if [ "${{ steps.tests.outputs.exit_code }}" != "0" ]; then
+            echo "::error::Godot test process exited ${{ steps.tests.outputs.exit_code }} (see testrun.log)."
+            exit 1
+          fi
+          if ! grep -qE "^Summary: [0-9]+ passed, 0 failed$" testrun.log; then
+            echo "::error::Test suite did not report a clean pass (see testrun.log)."
+            exit 1
+          fi

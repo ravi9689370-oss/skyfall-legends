@@ -1,0 +1,23 @@
+[Unit]
+Description=Skyfall Legends dedicated game server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=skyfall
+WorkingDirectory=/opt/skyfall-legends
+ExecStart=/opt/skyfall-legends/server/run_server.sh /opt/skyfall-legends/server/config/server.json
+Environment=GODOT=/opt/godot/godot
+Restart=on-failure
+RestartSec=3
+LimitNOFILE=65535
+# Hardening (the server needs no privileges and writes no files)
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/opt/skyfall-legends
+
+[Install]
+WantedBy=multi-user.target

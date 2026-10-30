@@ -1,0 +1,8 @@
+{
+  "port": 7777,
+  "max_clients": 64,
+  "bot_fill": true,
+  "zone_start": 476.0,
+  "spawn_weapons": false,
+  "phases": []
+}
