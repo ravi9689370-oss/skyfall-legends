@@ -25,8 +25,8 @@ jobs:
       GODOT_VERSION: 4.7.2-stable
       GODOT_URL: "https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip"
       TEMPLATES_URL: "https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz"
-      GODOT_BIN: ${{ runner.temp }}/godot
-      TEMPLATE_DIR: ${{ runner.temp }}/export_templates/4.7.2-stable
+      GODOT_BIN: /home/runner/work/_temp/godot
+      TEMPLATE_DIR: /home/runner/work/_temp/export_templates/4.7.2-stable
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -47,7 +47,7 @@ jobs:
       - name: Download Godot 4.7.2 binary + export templates
         run: |
           curl -fsSL -o godot.zip "${GODOT_URL}"
-          unzip -q godot.zip -d "${{ runner.temp }}"
+          unzip -q godot.zip -d "$RUNNER_TEMP"
           chmod +x "${GODOT_BIN}"
           rm -f godot.zip
           "${GODOT_BIN}" --version | head -1
@@ -61,9 +61,9 @@ jobs:
         id: signing
         run: |
           if [ -n "${{ secrets.ANDROID_RELEASE_KEYSTORE_B64 }}" ]; then
-            echo "${{ secrets.ANDROID_RELEASE_KEYSTORE_B64 }}" | base64 -d > "${{ runner.temp }}/release.keystore"
-            echo "keystore_path=${{ runner.temp }}/release.keystore" >> "${GITHUB_OUTPUT}"
-            echo "GODOT_ANDROID_KEYSTORE_RELEASE_PATH=${{ runner.temp }}/release.keystore" >> "${GITHUB_ENV}"
+            echo "${{ secrets.ANDROID_RELEASE_KEYSTORE_B64 }}" | base64 -d > "$RUNNER_TEMP/release.keystore"
+            echo "keystore_path=$RUNNER_TEMP/release.keystore" >> "${GITHUB_OUTPUT}"
+            echo "GODOT_ANDROID_KEYSTORE_RELEASE_PATH=$RUNNER_TEMP/release.keystore" >> "${GITHUB_ENV}"
             echo "GODOT_ANDROID_KEYSTORE_RELEASE_USER=${{ secrets.ANDROID_RELEASE_KEYSTORE_USER }}" >> "${GITHUB_ENV}"
             echo "GODOT_ANDROID_KEYSTORE_RELEASE_PASS=${{ secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}" >> "${GITHUB_ENV}"
             echo "release_signing=configured" >> "${GITHUB_OUTPUT}"
