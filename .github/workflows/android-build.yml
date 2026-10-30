@@ -22,11 +22,11 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     env:
-      GODOT_VERSION: 4.7.2-stable
+      GODOT_VERSION: 4.7.2.stable
       GODOT_URL: "https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip"
       TEMPLATES_URL: "https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz"
       GODOT_BIN: /home/runner/work/_temp/godot
-      TEMPLATE_DIR: /home/runner/work/_temp/export_templates/4.7.2-stable
+      TEMPLATE_DIR: /home/runner/work/_temp/export_templates/4.7.2.stable
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -56,17 +56,20 @@ jobs:
           rm -f godot.zip
           "${GODOT_BIN}" --version | head -1
           mkdir -p "${TEMPLATE_DIR}"
+          mkdir -p ~/.local/share/godot/export_templates/4.7.2.stable
           curl -fsSL -o templates.tpz "${TEMPLATES_URL}"
           mkdir -p templates_tmp && unzip -q -o templates.tpz -d templates_tmp
           # Godot 4.x templates may be in templates/ subdir
           if [ -d templates_tmp/templates ]; then
             cp -r templates_tmp/templates/* "${TEMPLATE_DIR}/" 2>/dev/null || true
+            cp -r templates_tmp/templates/* ~/.local/share/godot/export_templates/4.7.2.stable/ 2>/dev/null || true
           fi
           if [ -d templates_tmp/android_debug ] || [ -d templates_tmp/android_release ]; then
             cp -r templates_tmp/android_debug templates_tmp/android_release "${TEMPLATE_DIR}/" 2>/dev/null || true
+            cp -r templates_tmp/android_debug templates_tmp/android_release ~/.local/share/godot/export_templates/4.7.2.stable/ 2>/dev/null || true
           fi
           # Also try common filenames
-          find templates_tmp -name "android_debug*" -o -name "android_release*" | xargs -I{} cp {} "${TEMPLATE_DIR}/" 2>/dev/null || true
+          find templates_tmp -name "android_debug*" -o -name "android_release*" -o -name "android_source*" | xargs -I{} sh -c 'cp "{}" "${TEMPLATE_DIR}/" 2>/dev/null || true; cp "{}" ~/.local/share/godot/export_templates/4.7.2.stable/ 2>/dev/null || true'
           rm -rf templates_tmp templates.tpz
 
       - name: Configure release signing from secrets (optional)
