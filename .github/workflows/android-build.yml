@@ -58,7 +58,15 @@ jobs:
           mkdir -p "${TEMPLATE_DIR}"
           curl -fsSL -o templates.tpz "${TEMPLATES_URL}"
           mkdir -p templates_tmp && unzip -q -o templates.tpz -d templates_tmp
-          cp -r templates_tmp/android_debug templates_tmp/android_release "${TEMPLATE_DIR}/"
+          # Godot 4.x templates may be in templates/ subdir
+          if [ -d templates_tmp/templates ]; then
+            cp -r templates_tmp/templates/* "${TEMPLATE_DIR}/" 2>/dev/null || true
+          fi
+          if [ -d templates_tmp/android_debug ] || [ -d templates_tmp/android_release ]; then
+            cp -r templates_tmp/android_debug templates_tmp/android_release "${TEMPLATE_DIR}/" 2>/dev/null || true
+          fi
+          # Also try common filenames
+          find templates_tmp -name "android_debug*" -o -name "android_release*" | xargs -I{} cp {} "${TEMPLATE_DIR}/" 2>/dev/null || true
           rm -rf templates_tmp templates.tpz
 
       - name: Configure release signing from secrets (optional)
