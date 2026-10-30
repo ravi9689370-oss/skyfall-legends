@@ -242,18 +242,24 @@ func _safe_landing(xz: Vector2) -> bool:
 
 
 func _arm_deployer(c: TestClient) -> void:
-	# Deploy as soon as the player is in PLANE state. The server validates
-	# deploy timing (plane_t >= DEPLOY_MIN_T) and position, so repeated
-	# inputs are harmless until the deploy is accepted.
+	# Deploy when the plane crosses mid-island over land.
 	var flags := {"sprint": false, "crouch": false, "jump": false, "deploy": false, "ability": false}
+	var deployed := false
 	c.add_ticker(func() -> void:
+		if deployed:
+			return
 		var sd := c.last_self()
 		if sd.is_empty():
 			return
 		if int(sd.get("state", 0)) != MatchSim.State.PLANE:
 			return
+		var p: Vector3 = sd.get("pos", Vector3.ZERO)
+		var h := float(MapData.height(p.x, p.z))
+		if h < 0.5:
+			return
 		flags["deploy"] = true
-		c.net.send_input(c.next_seq(), sd.get("pos", Vector3.ZERO), 0.0, Vector2.ZERO, flags)
+		c.net.send_input(c.next_seq(), p, 0.0, Vector2.ZERO, flags)
+		deployed = true
 	)
 
 
